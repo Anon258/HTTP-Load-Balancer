@@ -5,6 +5,6 @@
 3. Added cmake script for server
 4. Added client class with get/put requests
 
-##Todo:
+## Todo:
 1. Add post with mime support and custom requests to client class
 2. Test
