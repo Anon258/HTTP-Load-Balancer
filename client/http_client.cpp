@@ -7,18 +7,10 @@ int main()
     http_client c1;
     std::string res;
     header_map hds;
-    std::string body = "Lalalalalalalala lmfaoooooooooooooo!";
     hds["arg1"] = "data1";
-    int code = c1.get("http://localhost:8080/hello",&res, hds);
-    if( code != CURLE_OK )
-    {
-        std::cout << code << " " <<  c1.log_error();
-    }
-    else
-    {
-        std::cout << res << std::endl;
-    }
+    int code = c1.putfile("http://localhost:8080/hello", std::string("index.html"), &res , hds);
     std::cout << c1.log_error();
+    std::cout << res << std::endl;
     curl_global_cleanup();
     return 0;
 }
