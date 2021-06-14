@@ -11,7 +11,7 @@ private:
     int nreq;
     std::string logfile;
 public:
-    hello_world_resource(std::string lf) : logfile(lf), nreq(0) {}
+    hello_world_resource(std::string lf) : logfile("../src/" + lf), nreq(0) {}
     const std::shared_ptr<http_response> render(const http_request& req)
     {
         nreq ++;
