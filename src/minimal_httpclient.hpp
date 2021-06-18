@@ -38,8 +38,8 @@ public:
     void enable_logging() { log_en = true; }
     void disable_logging() { log_en = false; }
     const char *log_status() { return log_en ? "enabled" : "disabled"; }
-    std::string log() { return err; }
-    void free_log() { err.erase(); }
+    const std::string& log() { return err; }
+    void free_log() { err.clear(); }
 
     /*Always set the Content-Type field yourself whenever necessary! Setting it to empty right now!*/
     CURLcode request

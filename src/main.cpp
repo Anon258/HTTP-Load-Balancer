@@ -21,6 +21,8 @@ public:
     const std::shared_ptr<http_response> render(const http_request& req)
     {
         nreq ++;
+        std::cout << "Started processing request number " << nreq << std::endl;
+        int id = nreq;
         std::string url = req.get_path();
         if ( urlhits.find(url) == urlhits.end())
             urlhits[url] = 0;
@@ -41,10 +43,16 @@ public:
         minimal_httpclient internal;
                 
         if (internal.request(server, method, body, &response, hds, &res_hds, rescode) == CURLE_OPERATION_TIMEDOUT)
+        {
             timeouts++;
+            std::cout << "Request with ID " << id << " timed out" << std::endl;
+        }
         else
+        {
             nserved++;
-
+            std::cout << "Serving request with ID " << id << " now" << std::endl;
+        }
+        
         std::shared_ptr<http_response> res = std::shared_ptr<http_response>(new string_response(response, rescode));
         for (auto rh : res_hds)
         {

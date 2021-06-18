@@ -112,7 +112,7 @@ public:
     void disable_logging() {log_en = false; }
     const char* log_status() { return log_en ? "enabled" : "disabled"; }
     std::string log() { return err; }
-    void free_log() { err.erase(); }
+    void free_log() { err.clear(); }
 };
 
 int http_client::get(std::string url, std::string* response = nullptr, header_map headers = header_map())
