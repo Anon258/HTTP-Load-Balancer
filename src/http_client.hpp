@@ -8,7 +8,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#ifndef header_map
 #define header_map std::map<std::string, std::string>
+#endif
+
 #define CURL_BAD_HANDLE -1
 #define CURL_FILE_ERR -2
 
