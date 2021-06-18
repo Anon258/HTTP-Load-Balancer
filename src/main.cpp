@@ -45,7 +45,7 @@ public:
         else
             nserved++;
 
-        std::shared_ptr<http_response> res = std::shared_ptr<http_response>(new string_response(response), rescode);
+        std::shared_ptr<http_response> res = std::shared_ptr<http_response>(new string_response(response, rescode));
         for (auto rh : res_hds)
         {
             res->with_header(rh.first, rh.second);
