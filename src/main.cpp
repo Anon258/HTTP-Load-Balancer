@@ -8,13 +8,14 @@
 using namespace httpserver;
 
 class loadbalancer : public http_resource {
+
 private:
     int nreq;
-    int nserved;
     int timeouts;
+    int nserved;
     std::map<std::string, int> urlhits;
-    minimal_httpclient internal;
     std::string server;
+
 public:
     loadbalancer(std::string server) : nreq(0), nserved(0), timeouts(0), server(server) {}
     const std::shared_ptr<http_response> render(const http_request& req)
@@ -31,14 +32,26 @@ public:
         {
             hds.insert(h);
         }
-        std::string method = req.get_method(); 
+        std::string method = req.get_method();
         std::string body = req.get_content();
-
+        header_map res_hds;
         std::string response;
+        int rescode;
 
-        CURLcode res = internal.request(server, method, body, &response, hds);
+        minimal_httpclient internal;
+                
+        if (internal.request(server, method, body, &response, hds, &res_hds, rescode) == CURLE_OPERATION_TIMEDOUT)
+            timeouts++;
+        else
+            nserved++;
 
-        return std::shared_ptr<http_response>(new string_response(response), (int)res);
+        std::shared_ptr<http_response> res = std::shared_ptr<http_response>(new string_response(response), rescode);
+        for (auto rh : res_hds)
+        {
+            res->with_header(rh.first, rh.second);
+        }
+
+        return res;
     }
 };
 
@@ -50,7 +63,7 @@ int main(int argc, char** argv)
         return 1;
     }
     std::string server (argv[1]);
-    webserver ws = create_webserver(8080);
+    webserver ws = create_webserver(8080).start_method(http::http_utils::THREAD_PER_CONNECTION);
 
     loadbalancer lb(server);
     ws.register_resource("/lb1", &lb);

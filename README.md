@@ -8,6 +8,4 @@
 6. Implemented basic reverse proxy functionality
 
 ## Todo :
-1. Make loadbalancer multithreaded
-2. Add footer in httpclient and minimal
-3. Add response header and footer support in loadbalancer
+1. Test

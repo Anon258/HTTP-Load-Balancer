@@ -17,6 +17,22 @@ private:
         userp->append((char *)buffer, size * nmemb);
         return size * nmemb;
     }
+    static size_t write_h(void *buffer, size_t size, size_t nmemb, header_map *userp)
+    {
+        std::string header;
+        header.append((char*) buffer, size*nmemb);
+        std::string opt, val;
+        int i = 0;
+        while (header[i] != ':')
+        {
+            opt += header[i];
+            ++i;
+        }
+        ++i;
+        val = header.substr(i);
+        userp->insert( std::pair<std::string, std::string> (opt, val) );
+        return size*nmemb;
+    }
 
 public:
     void enable_logging() { log_en = true; }
@@ -26,7 +42,15 @@ public:
     void free_log() { err.erase(); }
 
     /*Always set the Content-Type field yourself whenever necessary! Setting it to empty right now!*/
-    CURLcode request(const std::string &url, const std::string &method, const std::string &body, std::string* response, const header_map &hds = header_map())
+    CURLcode request
+    (   const std::string &url,
+        const std::string &method, 
+        const std::string &body, 
+        std::string* response, 
+        const header_map &hds, 
+        header_map* res_hds, 
+        int& rescode
+    )
     {
         if (log_en)
             err += "Request ID " + std::to_string(nreq++) + "\n";
@@ -37,6 +61,8 @@ public:
         curl_easy_setopt(hdl, CURLOPT_WRITEDATA, response);
         curl_easy_setopt(hdl, CURLOPT_POSTFIELDS, body.c_str());
         curl_easy_setopt(hdl, CURLOPT_CUSTOMREQUEST, method.c_str());
+        curl_easy_setopt(hdl, CURLOPT_HEADERFUNCTION, write_h);
+        curl_easy_setopt(hdl, CURLOPT_HEADERDATA, res_hds);
 
         curl_slist* hlist = NULL;
 
@@ -56,6 +82,9 @@ public:
         curl_easy_setopt(hdl, CURLOPT_HTTPHEADER, hlist);
         
         CURLcode res = curl_easy_perform(hdl);
+
+        curl_easy_getinfo(hdl, CURLINFO_RESPONSE_CODE, &rescode);
+
         if (log_en)
             err += curl_easy_strerror(res);
         if (log_en)
