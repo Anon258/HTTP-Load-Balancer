@@ -92,21 +92,21 @@ private:
     }
 public:
 
-    int get(std::string url, int& rescode, std::string* response, header_map headers);
-    int getfile(std::string url, int &rescode,std::string filename, header_map headers);
-    int put(std::string url, int &rescode, std::string data, std::string* response, header_map headers);
-    int putfile(std::string url, int &rescode, std::string filename, std::string* response, header_map headers);
-    int simplepost(std::string url, int &rescode, std::string data, std::string * response, header_map headers);
-    int binarypost(std::string url, int &rescode, void* data, long int size, std::string* response, header_map headers);
-    int formpost(std::string url, int &rescode, std::vector<mime_part*> parts, std::string *response, header_map headers);
+    int get(std::string url, long& rescode, std::string* response, header_map headers);
+    int getfile(std::string url, long &rescode,std::string filename, header_map headers);
+    int put(std::string url, long &rescode, std::string data, std::string* response, header_map headers);
+    int putfile(std::string url, long &rescode, std::string filename, std::string* response, header_map headers);
+    int simplepost(std::string url, long &rescode, std::string data, std::string * response, header_map headers);
+    int binarypost(std::string url, long &rescode, void* data, long int size, std::string* response, header_map headers);
+    int formpost(std::string url, long &rescode, std::vector<mime_part*> parts, std::string *response, header_map headers);
 
-    int c_get(std::string type, std::string url, int &rescode,std::string* response, header_map headers);
-    int c_getfile(std::string type, std::string url, int &rescode,std::string filename, header_map headers);
-    int c_put(std::string type, std::string url, int &rescode, std::string data, std::string* response, header_map headers);
-    int c_putfile(std::string type, std::string url, int &rescode, std::string filename, std::string* response, header_map headers);
-    int c_simplepost(std::string type, std::string url, int &rescode, std::string data, std::string * response, header_map headers);
-    int c_binarypost(std::string type, std::string url, int &rescode, void* data, long int size, std::string* response, header_map headers);
-    int c_formpost(std::string type, std::string url, int &rescode, std::vector<mime_part*> parts, std::string *response, header_map headers);
+    int c_get(std::string type, std::string url, long &rescode,std::string* response, header_map headers);
+    int c_getfile(std::string type, std::string url, long &rescode,std::string filename, header_map headers);
+    int c_put(std::string type, std::string url, long &rescode, std::string data, std::string* response, header_map headers);
+    int c_putfile(std::string type, std::string url, long &rescode, std::string filename, std::string* response, header_map headers);
+    int c_simplepost(std::string type, std::string url, long &rescode, std::string data, std::string * response, header_map headers);
+    int c_binarypost(std::string type, std::string url, long &rescode, void* data, long int size, std::string* response, header_map headers);
+    int c_formpost(std::string type, std::string url, long &rescode, std::vector<mime_part*> parts, std::string *response, header_map headers);
 
     void enable_logging() { log_en = true; }
     void disable_logging() {log_en = false; }
@@ -115,7 +115,7 @@ public:
     void free_log() { err.clear(); }
 };
 
-int http_client::get(std::string url, int &rescode, std::string* response, header_map headers = header_map())
+int http_client::get(std::string url, long &rescode, std::string* response, header_map headers = header_map())
 {
     if(log_en) err += "get() :\n";
     // handle initialization
@@ -145,7 +145,7 @@ int http_client::get(std::string url, int &rescode, std::string* response, heade
     return (int)res;
 }
 
-int http_client::c_get(std::string type, std::string url, int &rescode, std::string* response = nullptr, header_map headers = header_map())
+int http_client::c_get(std::string type, std::string url, long &rescode, std::string* response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "get() :\n";
     // handle initialization
@@ -179,7 +179,7 @@ int http_client::c_get(std::string type, std::string url, int &rescode, std::str
     return (int)res;
 }
 
-int http_client::getfile(std::string url, int &rescode, std::string filename, header_map headers = header_map())
+int http_client::getfile(std::string url, long &rescode, std::string filename, header_map headers = header_map())
 {
     if(log_en) err += "getfile() :\n";
     // handle initialization
@@ -219,7 +219,7 @@ int http_client::getfile(std::string url, int &rescode, std::string filename, he
     return (int)res;
 }
 
-int http_client::c_getfile(std::string type, std::string url, int &rescode, std::string filename, header_map headers = header_map())
+int http_client::c_getfile(std::string type, std::string url, long &rescode, std::string filename, header_map headers = header_map())
 {
     if(log_en) err += "getfile() :\n";
     // handle initialization
@@ -260,7 +260,7 @@ int http_client::c_getfile(std::string type, std::string url, int &rescode, std:
     return (int)res;
 }
 
-int http_client::put(std::string url, int &rescode, std::string data, std::string* response = nullptr, header_map headers = header_map())
+int http_client::put(std::string url, long &rescode, std::string data, std::string* response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "put()\n";
     // handle initialization
@@ -301,7 +301,7 @@ int http_client::put(std::string url, int &rescode, std::string data, std::strin
     return (int)res;
 }
 
-int http_client::c_put(std::string type, std::string url, int &rescode, std::string data, std::string* response = nullptr, header_map headers = header_map())
+int http_client::c_put(std::string type, std::string url, long &rescode, std::string data, std::string* response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "put()\n";
     // handle initialization
@@ -343,7 +343,7 @@ int http_client::c_put(std::string type, std::string url, int &rescode, std::str
     return (int)res;
 }
 
-int http_client::putfile(std::string url, int &rescode, std::string filename, std::string* response = nullptr, header_map headers = header_map())
+int http_client::putfile(std::string url, long &rescode, std::string filename, std::string* response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "putfile()\n";
     // handle initialization
@@ -387,7 +387,7 @@ int http_client::putfile(std::string url, int &rescode, std::string filename, st
     return (int)res;
 }
 
-int http_client::c_putfile(std::string type, std::string url, int &rescode, std::string filename, std::string* response = nullptr, header_map headers = header_map())
+int http_client::c_putfile(std::string type, std::string url, long &rescode, std::string filename, std::string* response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "putfile()\n";
     // handle initialization
@@ -432,7 +432,7 @@ int http_client::c_putfile(std::string type, std::string url, int &rescode, std:
     return (int)res;
 }
 
-int http_client::simplepost(std::string url, int &rescode, std::string data, std::string * response = nullptr, header_map headers = header_map())
+int http_client::simplepost(std::string url, long &rescode, std::string data, std::string * response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "simplepost()\n";
     // handle initialization
@@ -467,7 +467,7 @@ int http_client::simplepost(std::string url, int &rescode, std::string data, std
     return (int)res;
 }
 
-int http_client::c_simplepost(std::string type, std::string url, int &rescode, std::string data, std::string * response = nullptr, header_map headers = header_map())
+int http_client::c_simplepost(std::string type, std::string url, long &rescode, std::string data, std::string * response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "simplepost()\n";
     // handle initialization
@@ -503,7 +503,7 @@ int http_client::c_simplepost(std::string type, std::string url, int &rescode, s
     return (int)res;
 }
 
-int http_client::binarypost(std::string url, int &rescode, void* data, long int size, std::string* response = nullptr, header_map headers = header_map())
+int http_client::binarypost(std::string url, long &rescode, void* data, long int size, std::string* response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "binarypost()\n";
     // handle initialization
@@ -539,7 +539,7 @@ int http_client::binarypost(std::string url, int &rescode, void* data, long int 
     return (int)res;    
 }
 
-int http_client::c_binarypost(std::string type, std::string url, int &rescode, void* data, long int size, std::string* response = nullptr, header_map headers = header_map())
+int http_client::c_binarypost(std::string type, std::string url, long &rescode, void* data, long int size, std::string* response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "binarypost()\n";
     // handle initialization
@@ -576,7 +576,7 @@ int http_client::c_binarypost(std::string type, std::string url, int &rescode, v
     return (int)res;    
 }
 
-int http_client::formpost(std::string url, int &rescode, std::vector<mime_part*> parts, std::string *response = nullptr, header_map headers = header_map())
+int http_client::formpost(std::string url, long &rescode, std::vector<mime_part*> parts, std::string *response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "formpost()\n";
     // handle initialization
@@ -644,7 +644,7 @@ int http_client::formpost(std::string url, int &rescode, std::vector<mime_part*>
     return (int)res;    
 }
 
-int http_client::c_formpost(std::string type, std::string url, int &rescode, std::vector<mime_part*> parts, std::string *response = nullptr, header_map headers = header_map())
+int http_client::c_formpost(std::string type, std::string url, long &rescode, std::vector<mime_part*> parts, std::string *response = nullptr, header_map headers = header_map())
 {
     if(log_en) err += "formpost()\n";
     // handle initialization
