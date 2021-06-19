@@ -22,7 +22,6 @@ public:
     {
         nreq ++;
         std::cout << "Started processing request number " << nreq << std::endl;
-        int id = nreq;
         std::string url = req.get_path();
         if ( urlhits.find(url) == urlhits.end())
             urlhits[url] = 0;
@@ -41,16 +40,16 @@ public:
         int rescode;
 
         minimal_httpclient internal;
-                
+        
         if (internal.request(server, method, body, &response, hds, &res_hds, rescode) == CURLE_OPERATION_TIMEDOUT)
         {
             timeouts++;
-            std::cout << "Request with ID " << id << " timed out" << std::endl;
+            std::cout << "Request with ID " << nreq << " timed out" << std::endl;
         }
         else
         {
             nserved++;
-            std::cout << "Serving request with ID " << id << " now" << std::endl;
+            std::cout << "Serving request with ID " << nreq << " now" << std::endl;
         }
         
         std::shared_ptr<http_response> res = std::shared_ptr<http_response>(new string_response(response, rescode));
@@ -74,11 +73,16 @@ int main(int argc, char** argv)
     webserver ws = create_webserver(8080).start_method(http::http_utils::THREAD_PER_CONNECTION);
 
     loadbalancer lb(server);
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
     ws.register_resource("/lb1", &lb);
     ws.register_resource("/lb2", &lb);
     ws.register_resource("/lb3", &lb);
     ws.register_resource("/lb4", &lb);
     ws.start(true);
-    
+
+    curl_global_cleanup();
+        
     return 0;
 }

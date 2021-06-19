@@ -1,6 +1,7 @@
 #include <curl/curl.h>
 #include <string>
 #include <map>
+#include <iostream>
 
 #ifndef header_map
 #define header_map std::map<std::string, std::string>
@@ -21,16 +22,14 @@ private:
     {
         std::string header;
         header.append((char*) buffer, size*nmemb);
-        std::string opt, val;
-        int i = 0;
-        while (header[i] != ':')
+        size_t idx = header.find(':');
+        if (idx != std::string::npos)
         {
-            opt += header[i];
-            ++i;
+            std::string opt, val;
+            opt = header.substr(0, idx);
+            val = header.substr(idx+1);
+            userp->insert( std::pair<std::string, std::string> (opt, val) );
         }
-        ++i;
-        val = header.substr(i);
-        userp->insert( std::pair<std::string, std::string> (opt, val) );
         return size*nmemb;
     }
 
@@ -41,7 +40,7 @@ public:
     const std::string& log() { return err; }
     void free_log() { err.clear(); }
 
-    /*Always set the Content-Type field yourself whenever necessary! Setting it to empty right now!*/
+    /*Always set the Content-Type and Content-Length field yourself whenever necessary! Setting it to empty!*/
     CURLcode request
     (   const std::string &url,
         const std::string &method, 
@@ -70,6 +69,10 @@ public:
         {
             hlist = curl_slist_append(hlist, "Content-Type:");
         }
+        if (hds.find("Content-Length") == hds.end())
+        {
+            hlist = curl_slist_append(hlist, "Content-Length:");
+        }
 
         if (!hds.empty())
         {
@@ -80,7 +83,6 @@ public:
             }
         }
         curl_easy_setopt(hdl, CURLOPT_HTTPHEADER, hlist);
-        
         CURLcode res = curl_easy_perform(hdl);
 
         curl_easy_getinfo(hdl, CURLINFO_RESPONSE_CODE, &rescode);
