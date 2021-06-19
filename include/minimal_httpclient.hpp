@@ -1,5 +1,5 @@
-#ifndef __MINIMAL_HTTPCLIENT_H__
-#define __MINIMAL_HTTPCLIENT_H__
+#ifndef __MINIMAL_HTTPCLIENT_HPP__
+#define __MINIMAL_HTTPCLIENT_HPP__
 
 #include <curl/curl.h>
 #include <string>

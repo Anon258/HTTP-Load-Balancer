@@ -1,5 +1,5 @@
-#ifndef __HTTP_CLIENT_H__
-#define __HTTP_CLIENT_H__
+#ifndef __HTTP_CLIENT_HPP__
+#define __HTTP_CLIENT_HPP__
 
 #include <vector>
 #include <map>

@@ -1,7 +1,4 @@
-#ifndef __MINIMAL_HTTPCLIENT_H__
-#define __MINIMAL_HTTPCLIENT_H__
-
-#include "minimal_httpclient.h"
+#include "minimal_httpclient.hpp"
 
 static size_t minimal_httpclient::write(void *buffer, size_t size, size_t nmemb, std::string *userp)
 {
