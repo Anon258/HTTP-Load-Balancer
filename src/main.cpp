@@ -1,31 +1,42 @@
 #include "minimal_httpclient.hpp"
 #include <httpserver.hpp>
 #include <string>
-#include <map>
+#include <unordered_map>
+
 #include <iostream>
 #include <fstream>
 
 using namespace httpserver;
 
-class loadbalancer : public http_resource {
+void custom_log( const std::string& url )
+{
+    std::ifstream ifd;
+    ifd.open("../logs/" + url, std::ios_base::in);
+    int count = 0;
+    if(ifd.good()) ifd >> count;
+    ifd.close();
+    count++;
+    std::ofstream ofd;
+    ofd.open("../logs/" + url, std::ios_base::trunc);
+    ofd << count;
+    ofd.close();
+}
 
-private:
-    int nreq;
-    int timeouts;
-    int nserved;
-    std::map<std::string, int> urlhits;
+class loadbalancer : public http_resource
+{
+  private:
+    
+    int nreq, timeouts, nserved;
     std::string server;
 
-public:
-    loadbalancer(std::string server) : nreq(0), nserved(0), timeouts(0), server(server) {}
-    const std::shared_ptr<http_response> render(const http_request& req)
+  public:
+    loadbalancer(std::string server) :
+    nreq(0), nserved(0), timeouts(0), server(server) {}
+
+    const std::shared_ptr<http_response> render(const http_request &req)
     {
-        nreq ++;
+        nreq++;
         std::cout << "Started processing request number " << nreq << std::endl;
-        std::string url = req.get_path();
-        if ( urlhits.find(url) == urlhits.end())
-            urlhits[url] = 0;
-        urlhits[url] ++;
 
         std::map<std::string, std::string, http::header_comparator> headers = req.get_headers();
         header_map hds;
@@ -37,10 +48,10 @@ public:
         std::string body = req.get_content();
         header_map res_hds;
         std::string response;
-        int rescode;
+        long rescode;
 
         minimal_httpclient internal;
-        
+
         if (internal.request(server, method, body, &response, hds, &res_hds, rescode) == CURLE_OPERATION_TIMEDOUT)
         {
             timeouts++;
@@ -51,8 +62,8 @@ public:
             nserved++;
             std::cout << "Serving request with ID " << nreq << " now" << std::endl;
         }
-        
-        std::shared_ptr<http_response> res = std::shared_ptr<http_response>(new string_response(response, rescode));
+
+        std::shared_ptr<http_response> res = std::shared_ptr<http_response>(new string_response(response, (int)rescode));
         for (auto rh : res_hds)
         {
             res->with_header(rh.first, rh.second);
@@ -62,15 +73,18 @@ public:
     }
 };
 
-int main(int argc, char** argv) 
+int main(int argc, char **argv)
 {
     if (argc != 2)
     {
-        std::cout << "Usage : ./a.out server-url" << std::endl; 
+        std::cout << "Usage : ./a.out server-url" << std::endl;
         return 1;
     }
-    std::string server (argv[1]);
-    webserver ws = create_webserver(8080).start_method(http::http_utils::THREAD_PER_CONNECTION);
+    std::string server(argv[1]);
+
+    webserver ws = create_webserver(8080)
+                    .start_method(http::http_utils::THREAD_PER_CONNECTION)
+                    .log_access(custom_log);
 
     loadbalancer lb(server);
 
@@ -83,6 +97,6 @@ int main(int argc, char** argv)
     ws.start(true);
 
     curl_global_cleanup();
-        
+
     return 0;
 }

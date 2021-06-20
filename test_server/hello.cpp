@@ -4,6 +4,11 @@
 #include <iostream>
 #include <fstream>
 
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 using namespace httpserver;
 
 class hello_world_resource : public http_resource {
@@ -33,19 +38,26 @@ public:
 
         std::cout << log;
 
+        if (rand()%100 > 75)
+        {
+            usleep(10000);
+        }
+
         return std::shared_ptr<http_response>(new string_response("Hello, World!"));
     }
 };
 
 int main(int argc, char** argv) 
 {
+    srand(time(0));
+
     if (argc != 2)
     {
         std::cout << "Usage : ./a.out logfile-name" << std::endl; 
         return 1;
     }
     std::string lf (argv[1]);
-    webserver ws = create_webserver(5656);
+    webserver ws = create_webserver(5656).start_method(http::http_utils::THREAD_PER_CONNECTION);
 
     hello_world_resource hwr(lf);
     ws.register_resource("/", &hwr);
