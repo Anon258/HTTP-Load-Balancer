@@ -1,6 +1,3 @@
 # HTTP-Load-Balancer
-## Current Work :
-1. Added Hello World program (httpserver) and tested
-2. Added logging and tested
-3. Added cmake script for server
-4. Added client class
+## Done :
+Added lb (loadbalancer) with basic reverse proxy functions. Tested on various types of requests from http_client.
