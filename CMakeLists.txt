@@ -9,6 +9,7 @@ find_package( CURL REQUIRED )
 add_executable(lb src/main.cpp src/minimal_httpclient.cpp)
 target_include_directories(lb PRIVATE include)
 target_link_libraries(lb httpserver CURL::libcurl)
+target_link_libraries(lb pthread)
 
 # client
 add_executable(client test_client/client.cpp src/http_client.cpp)

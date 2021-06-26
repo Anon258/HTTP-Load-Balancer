@@ -33,6 +33,8 @@ CURLcode minimal_httpclient::request( const std::string &url, const std::string 
         }
     }
     curl_easy_setopt(hdl, CURLOPT_HTTPHEADER, hlist);
+    curl_easy_setopt(hdl, CURLOPT_CONNECTTIMEOUT, 10L);
+    curl_easy_setopt(hdl, CURLOPT_TIMEOUT_MS, 3000L);
     CURLcode res = curl_easy_perform(hdl);
     curl_easy_getinfo(hdl, CURLINFO_RESPONSE_CODE, &rescode);
     
