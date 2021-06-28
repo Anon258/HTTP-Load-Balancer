@@ -1,0 +1,5 @@
+interval = 5
+
+localhost:5656,true,localhost:5656
+localhost:5657,true,localhost:5657
+localhost:5658,false
