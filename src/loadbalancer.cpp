@@ -7,7 +7,7 @@ void loadbalancer::health_check()
 	{
 		curr = std::time(nullptr);
 		if(curr - start >= interval)
-		{
+		{	
 			for(auto &sv: servers)
 				send_health(sv);
 			start = curr;
