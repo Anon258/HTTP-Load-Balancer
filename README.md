@@ -4,9 +4,10 @@ Added lb (loadbalancer) with basic reverse proxy functions and server health che
 
 ### Config File format (temp):
 
-First line: interval = '<interval in seconds>'
-Empty Line
-Each subsequent line is of the format 
+1. First line: interval = '<interval in seconds>'
+2. Empty Line
+3. Each subsequent line is of the format 
+
 '<server url>','<bool for dedicated health check>','<health check url (only if previous was true)>'
 
 ## TODO:
