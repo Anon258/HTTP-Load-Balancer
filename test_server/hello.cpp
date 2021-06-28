@@ -51,13 +51,17 @@ int main(int argc, char** argv)
 {
     srand(time(0));
 
-    if (argc != 2)
+    if (argc < 2 || argc > 3)
     {
-        std::cout << "Usage : ./a.out logfile-name" << std::endl; 
+        std::cout << "Usage : ./a.out logfile-name port(optional)" << std::endl; 
         return 1;
     }
     std::string lf (argv[1]);
-    webserver ws = create_webserver(5656).start_method(http::http_utils::THREAD_PER_CONNECTION);
+    
+    int port = 5656;
+    if(argc == 3)
+    	port = std::stoi(argv[2]);
+    webserver ws = create_webserver(port).start_method(http::http_utils::THREAD_PER_CONNECTION);
 
     hello_world_resource hwr(lf);
     ws.register_resource("/", &hwr);
