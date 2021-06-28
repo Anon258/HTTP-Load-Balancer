@@ -8,7 +8,7 @@ Added lb (loadbalancer) with basic reverse proxy functions and server health che
 2. Empty Line
 3. Each subsequent line is of the format 
 
-'<server url>','<bool for dedicated health check>','<health check url (only if previous was true)>'
+&lt; server url &gt;, &lt; bool for dedicated health check &gt; , &lt; health check url (only if previous was true) &gt;
 
 ## TODO:
 1. Add health check without dedicated url
