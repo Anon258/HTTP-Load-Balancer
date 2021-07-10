@@ -16,13 +16,13 @@ using namespace httpserver;
 void custom_log( const std::string& url )
 {
     std::ifstream ifd;
-    ifd.open("../logs/" + url, std::ios_base::in);
+    ifd.open("../logs/url_hits/" + url, std::ios_base::in);
     int count = 0;
     if(ifd.good()) ifd >> count;
     ifd.close();
     count++;
     std::ofstream ofd;
-    ofd.open("../logs/" + url, std::ios_base::trunc);
+    ofd.open("../logs/url_hits/" + url, std::ios_base::trunc);
     ofd << count;
     ofd.close();
 }
@@ -77,7 +77,7 @@ loadbalancer setup_config( const std::string config_file )
 			}
 		}
 		
-		loadbalancer lb(servers, interval);
+		loadbalancer lb(servers, interval, "../logs/lblogs");
 		return lb;
 	}
 	else

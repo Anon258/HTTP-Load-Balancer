@@ -11,15 +11,17 @@
 
 using namespace httpserver;
 
-class hello_world_resource : public http_resource {
+class hello_world_resource : public http_resource
+{
 private:
     int nreq;
     std::string logfile;
+
 public:
     hello_world_resource(std::string lf) : logfile(lf), nreq(0) {}
-    const std::shared_ptr<http_response> render(const http_request& req)
+    const std::shared_ptr<http_response> render(const http_request &req)
     {
-        nreq ++;
+        nreq++;
         std::string log = "Request Number  : " + std::to_string(nreq) + "\n";
         log += "URL Requested : " + req.get_path() + "\n";
         log += "Method : " + req.get_method() + "\n";
@@ -28,7 +30,7 @@ public:
         for (auto h : headers)
         {
             log += "  " + h.first + " : " + h.second + "\n";
-        } 
+        }
         log += "Body : " + req.get_content() + "\n\n";
 
         std::ofstream fd;
@@ -38,7 +40,7 @@ public:
 
         std::cout << log;
 
-        if (rand()%100 > 75)
+        if (rand() % 100 > 75)
         {
             usleep(10000);
         }
@@ -47,25 +49,30 @@ public:
     }
 };
 
-int main(int argc, char** argv) 
+int main(int argc, char **argv)
 {
     srand(time(0));
 
     if (argc < 2 || argc > 3)
     {
-        std::cout << "Usage : ./a.out logfile-name port(optional)" << std::endl; 
+        std::cout << "Usage : ./a.out logfile-name port(optional)" << std::endl;
         return 1;
     }
-    std::string lf (argv[1]);
     
+    std::string lf(argv[1]);
+    std::ofstream fd;
+    fd.open(lf, std::ios_base::trunc);
+    fd << "LOGS FOR SERVER WRITTEN HERE\n\n";
+    fd.close();
+
     int port = 5656;
-    if(argc == 3)
-    	port = std::stoi(argv[2]);
+    if (argc == 3)
+        port = std::stoi(argv[2]);
     webserver ws = create_webserver(port).start_method(http::http_utils::THREAD_PER_CONNECTION);
 
     hello_world_resource hwr(lf);
     ws.register_resource("/", &hwr);
     ws.start(true);
-    
+
     return 0;
 }

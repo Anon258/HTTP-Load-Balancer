@@ -1,5 +1,6 @@
-interval = 5
+interval = 1
 
-localhost:5656,true,localhost:5656
-localhost:5657,true,localhost:5657
+localhost:5656,false
+localhost:5657,false
 localhost:5658,false
+localhost:5659,false
