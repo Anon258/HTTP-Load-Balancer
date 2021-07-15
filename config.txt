@@ -1,6 +1,4 @@
-interval = 1
-
-localhost:5656,false
-localhost:5657,false
-localhost:5658,false
-localhost:5659,false
+5
+http://localhost:6050
+http://localhost:6060
+http://localhost:6070

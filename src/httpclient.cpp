@@ -1,8 +1,33 @@
-#include "minimal_httpclient.hpp"
+#include "httpclient.hpp"
 
-CURLcode minimal_httpclient::request( const std::string &url, const std::string &method, const std::string &body, 
-    std::string* response, const header_map &hds, header_map* res_hds, long& rescode)
+size_t httpclient::write(void *buffer, size_t size, size_t nmemb, std::string *userp)
 {
+    userp->append((char *)buffer, size * nmemb);
+    return size * nmemb;
+}
+
+size_t httpclient::write_h(void *buffer, size_t size, size_t nmemb, header_map *userp)
+{
+    if (userp)
+    {
+        std::string header;
+        header.append((char *)buffer, size * nmemb);
+        size_t idx = header.find(':');
+        if (idx != std::string::npos)
+        {
+            std::string opt, val;
+            opt = header.substr(0, idx);
+            val = header.substr(idx + 1);
+            userp->insert(std::pair<std::string, std::string>(opt, val));
+        }
+    }
+    return size * nmemb;
+}
+
+CURLcode httpclient::request ( 
+    const std::string &url, const std::string &method, const std::string &body, 
+    const header_map &hds, std::string* response, header_map* res_hds, long* rescode
+    ) {
     CURL *hdl = curl_easy_init();
 
     curl_easy_setopt(hdl, CURLOPT_URL, url.c_str());
@@ -36,7 +61,8 @@ CURLcode minimal_httpclient::request( const std::string &url, const std::string 
     curl_easy_setopt(hdl, CURLOPT_CONNECTTIMEOUT, 10L);
     curl_easy_setopt(hdl, CURLOPT_TIMEOUT_MS, 3000L);
     CURLcode res = curl_easy_perform(hdl);
-    curl_easy_getinfo(hdl, CURLINFO_RESPONSE_CODE, &rescode);
+    
+    if(rescode) curl_easy_getinfo(hdl, CURLINFO_RESPONSE_CODE, rescode);
     
     curl_slist_free_all(hlist);
     curl_easy_cleanup(hdl);
