@@ -18,7 +18,11 @@ class loadbalancer : public http_resource
 {
 private:
     int interval;
+
     std::vector<std::string> servers;
+    std::vector<std::string> hc_urls;
+    std::vector<bool> strict_hc;
+
     int lastUsedServer, totalServers;
     std::set<int> activeServers;
     std::mutex lusMutex, asMutex, lfdMutex;
@@ -28,6 +32,6 @@ private:
     void healthcheck();
 
 public:
-    loadbalancer(std::vector<std::string> urls, int interval);
+    loadbalancer(std::vector<std::string> urls, std::vector<bool> strict_hc, std::vector<std::string> hc_urls, int interval);
     const std::shared_ptr<http_response> render(const http_request &req);
 };

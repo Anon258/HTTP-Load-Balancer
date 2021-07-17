@@ -8,8 +8,9 @@ void loadbalancer::healthcheck()
         for (int i = 0; i < totalServers; ++i)
         {
             std::string response;
-            CURLcode hc_code = httpclient::request(servers[i], "HEAD", "", header_map(), &response);
-            if (hc_code == CURLE_COULDNT_CONNECT)
+            long rescode;
+            CURLcode hc_code = httpclient::request(hc_urls[i], "HEAD", "", header_map(), &response, nullptr, &rescode);
+            if ( strict_hc[i] ? (rescode != 200) : (hc_code == CURLE_COULDNT_CONNECT) )
             {
                 asMutex.lock();
                 activeServers.erase(i);
@@ -34,8 +35,8 @@ void loadbalancer::healthcheck()
     }
 }
 
-loadbalancer::loadbalancer (std::vector<std::string> urls, int interval) : 
-servers(urls), interval(interval), hc_thread(&loadbalancer::healthcheck, this)
+loadbalancer::loadbalancer (std::vector<std::string> urls, std::vector<bool> strict_hc, std::vector<std::string> hc_urls, int interval) : 
+servers(urls), strict_hc(strict_hc), hc_urls(hc_urls), interval(interval), hc_thread(&loadbalancer::healthcheck, this)
 {
     lastUsedServer = -1;
     totalServers = urls.size();
@@ -100,18 +101,6 @@ const std::shared_ptr<http_response> loadbalancer::render(const http_request &re
     log_fd.close();
     lfdMutex.unlock();
 
-    // health check
-    CURLcode hc_code = httpclient::request(servers[inuse], "HEAD", "", header_map(), &response);
-    if (hc_code == CURLE_COULDNT_CONNECT)
-    {
-        asMutex.lock();
-        activeServers.erase(inuse);
-        asMutex.unlock();
-        return std::shared_ptr<http_response>(new string_response(curl_easy_strerror(hc_code), 500));
-    }
-    response.clear();
-
-    // request
     CURLcode res_code = httpclient::request(servers[inuse] + req.get_path(), method, body, hds, &response, &res_hds, &rescode);
 
     if (res_code != CURLE_OK)
