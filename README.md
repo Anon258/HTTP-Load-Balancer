@@ -6,6 +6,3 @@ To test, execute serveport.py with port numbers 6050, 6060 and execute serve.py 
 ## Config Format
 (int) -> interval in seconds for which to pause  
 (string)* -> server_url [(space) health_url]
-
-## ToDo
-Add a parellel string queue based logger class
