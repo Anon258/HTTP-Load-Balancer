@@ -1,4 +1,8 @@
+#ifndef _LOAD_BALANCER_HPP_
+#define _LOAD_BALANCER_HPP_
+
 #include "httpclient.hpp"
+#include "logger.hpp"
 #include <httpserver.hpp>
 
 #include <vector>
@@ -7,10 +11,6 @@
 #include <mutex>
 #include <thread>
 #include <chrono>
-
-#include <fstream>
-
-#define LB_LOG "../logs/lb_logs.txt"
 
 using namespace httpserver;
 
@@ -25,13 +25,16 @@ private:
 
     int lastUsedServer, totalServers;
     std::set<int> activeServers;
-    std::mutex lusMutex, asMutex, lfdMutex;
+    std::mutex asMutex;
     std::thread hc_thread;
-    std::ofstream log_fd;
+    logger* lg;
 
     void healthcheck();
 
 public:
     loadbalancer(std::vector<std::string> urls, std::vector<bool> strict_hc, std::vector<std::string> hc_urls, int interval);
+    inline void add_logger(logger* lgptr) { lg = lgptr; }
     const std::shared_ptr<http_response> render(const http_request &req);
 };
+
+#endif

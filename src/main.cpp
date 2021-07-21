@@ -1,4 +1,5 @@
 #include "loadbalancer.hpp"
+#include "logger.hpp"
 
 #include <string>
 #include <fstream>
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
                        .log_access(custom_log);
 
     loadbalancer lb(urls, strict_hc, hc_urls, interval);
+    lb.add_logger(new logger("../logs/lb_logs.txt"));
 
     curl_global_init(CURL_GLOBAL_ALL);
 
