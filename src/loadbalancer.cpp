@@ -8,8 +8,9 @@ void loadbalancer::healthcheck()
         for (int i = 0; i < totalServers; ++i)
         {
             std::string response;
-            CURLcode hc_code = httpclient::request(servers[i], "HEAD", "", header_map(), &response);
-            if (hc_code == CURLE_COULDNT_CONNECT)
+            long rescode;
+            CURLcode hc_code = httpclient::request(hc_urls[i], "HEAD", "", header_map(), &response, nullptr, &rescode);
+            if ( strict_hc[i] ? (rescode != 200) : (hc_code == CURLE_COULDNT_CONNECT) )
             {
                 asMutex.lock();
                 activeServers.erase(i);
@@ -23,30 +24,19 @@ void loadbalancer::healthcheck()
                 asMutex.unlock();
             }
         }
-        lfdMutex.lock();
-        log_fd.open(LB_LOG, std::ios::app);
-        log_fd << "Active server list updated :" << std::endl;
-        log_fd << logstring << std::endl
-               << std::endl;
-        log_fd.close();
-        lfdMutex.unlock();
+        if (lg) lg->add_log("Active Server List : " + logstring + "\n");
         std::this_thread::sleep_for(std::chrono::seconds(interval));
     }
 }
 
-loadbalancer::loadbalancer (std::vector<std::string> urls, int interval) : 
-servers(urls), interval(interval), hc_thread(&loadbalancer::healthcheck, this)
+loadbalancer::loadbalancer (std::vector<std::string> urls, std::vector<bool> strict_hc, std::vector<std::string> hc_urls, int interval) : 
+servers(urls), strict_hc(strict_hc), hc_urls(hc_urls), interval(interval), hc_thread(&loadbalancer::healthcheck, this)
 {
     lastUsedServer = -1;
     totalServers = urls.size();
     for (int i = 0; i < totalServers; ++i)
         activeServers.insert(i);
-    lfdMutex.lock();
-    log_fd.open(LB_LOG, std::ios::trunc);
-    log_fd << "LOGS FOR LOADBALANCER :" << std::endl
-           << std::endl;
-    log_fd.close();
-    lfdMutex.unlock();
+    lg = nullptr;
 }
 
 const std::shared_ptr<http_response> loadbalancer::render(const http_request &req)
@@ -60,24 +50,18 @@ const std::shared_ptr<http_response> loadbalancer::render(const http_request &re
     std::string response;
     long rescode;
 
-    lusMutex.lock();
+    std::string log = "";
+    log += "Request:";
+    log += "Method-" + method + ", ";
+    log += "Client_IP-" + req.get_requestor() + ", ";
+
     asMutex.lock();
     if (activeServers.empty())
     {
-        lfdMutex.lock();
-        log_fd.open(LB_LOG, std::ios::app);
-        log_fd << "Request :" << std::endl;
-        log_fd << "Method - " << method << std::endl;
-        log_fd << "Client IP - " << req.get_requestor() << std::endl;
-        log_fd << "Client Port - " << req.get_requestor_port() << std::endl;
-        log_fd << "Server Forwarded To - "
-               << "NIL" << std::endl
-               << std::endl;
-        log_fd.close();
-        lfdMutex.unlock();
-        lusMutex.unlock();
         asMutex.unlock();
-        return std::shared_ptr<http_response>(new string_response("No servers available to handle current request", 503));
+        log += "Backend_Server-NIL\n";
+        if(lg) lg->add_log(log);
+        return std::shared_ptr<http_response>(new string_response("<h1>Unavailable</h1><b>No backend servers can handle the request</b>", 503));
     }
 
     int inuse;
@@ -85,33 +69,12 @@ const std::shared_ptr<http_response> loadbalancer::render(const http_request &re
         inuse = *activeServers.upper_bound(lastUsedServer);
     else
         inuse = *activeServers.begin();
-    asMutex.unlock();
     lastUsedServer = inuse;
-    lusMutex.unlock();
+    asMutex.unlock();
 
-    lfdMutex.lock();
-    log_fd.open(LB_LOG, std::ios::app);
-    log_fd << "Request :" << std::endl;
-    log_fd << "Method - " << method << std::endl;
-    log_fd << "Client IP - " << req.get_requestor() << std::endl;
-    log_fd << "Client Port - " << req.get_requestor_port() << std::endl;
-    log_fd << "Server Forwarded To - " << servers[inuse] << std::endl
-           << std::endl;
-    log_fd.close();
-    lfdMutex.unlock();
+    log += "Backend_Server-" + servers[inuse] + "\n";
+    if(lg) lg->add_log(log);
 
-    // health check
-    CURLcode hc_code = httpclient::request(servers[inuse], "HEAD", "", header_map(), &response);
-    if (hc_code == CURLE_COULDNT_CONNECT)
-    {
-        asMutex.lock();
-        activeServers.erase(inuse);
-        asMutex.unlock();
-        return std::shared_ptr<http_response>(new string_response(curl_easy_strerror(hc_code), 500));
-    }
-    response.clear();
-
-    // request
     CURLcode res_code = httpclient::request(servers[inuse] + req.get_path(), method, body, hds, &response, &res_hds, &rescode);
 
     if (res_code != CURLE_OK)
